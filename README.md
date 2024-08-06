@@ -1,47 +1,34 @@
-# 📊 Previsão de Estoque Inteligente na AWS com [SageMaker Canvas](https://aws.amazon.com/pt/sagemaker/canvas/)
+# Previsão de Estoque Inteligente na AWS com [SageMaker Canvas](https://aws.amazon.com/pt/sagemaker/canvas/)
 
-Bem-vindo ao desafio de projeto "Previsão de Estoque Inteligente na AWS com SageMaker Canvas. Neste Lab DIO, você aprenderá a usar o SageMaker Canvas para criar previsões de estoque baseadas em Machine Learning (ML). Siga os passos abaixo para completar o desafio!
+Esta análise é referente ao desafio de projeto "Previsão de Estoque Inteligente na AWS com SageMaker Canvas" organizado e disponibilizado na plataforma da Digital Innovation One - DIO. O curso consiste em primeiros passos para realizar previsões de estoque com Machine Learning (ML) utilizando AWS SageMaker Canvas.
 
-## 📋 Pré-requisitos
+## Sobre o dataset
 
-Antes de começar, certifique-se de ter uma conta na AWS. Se precisar de ajuda para criar sua conta, confira nosso repositório [AWS Cloud Quickstart](https://github.com/digitalinnovationone/aws-cloud-quickstart).
+O dataset consiste em:
+- ID_PRODUTO: número de identificação do produto
+- DATA_EVENTO: data de referência
+- PRECO: valor do preço referente ao produto
+- FLAG_PROMOCAO: booleano onde 1 - está em promoção, 0 - não está em promoção
+- QUANTIDADE_ESTOQUE: quantidade de unidades do produto em estoque
 
+## Desenvolvimento do Projeto
 
-## 🎯 Objetivos Deste Desafio de Projeto (Lab)
+### 1. Dataset e Feature Engineering
 
-![image](https://github.com/digitalinnovationone/lab-aws-sagemaker-canvas-estoque/assets/730492/72f5c21f-5562-491e-aa42-2885a3184650)
+- Para que fosse utilizado, o dataset disponibilizado pela DIO foi importado manualmente para o SageMaker Canvas
+- Os Missing Values da coluna QUANTIDADE_ESTOQUE foram substituídos por 0, enquanto os da coluna PRECO foram substituídos pela mediana. Esta funcionalidade está disponível no SageMaker Canvas, onde podemos escolher, por exemplo, o menor valor, o maior valor, a média, entre outros.
 
-- Dê um fork neste projeto e reescreva este `README.md`. Sinta-se à vontade para detalhar todo o processo de criação do seu Modelo de ML para uma "Previsão de Estoque Inteligente".
-- Para isso, siga o [passo a passo] descrito a seguir e evolua as suas habilidades em ML no-code com o Amazon SageMaker Canvas.
-- Ao concluir, envie a URL do seu repositório com a solução na plataforma da DIO.
+### 2. Construção e Treinamento
 
+- Como o objetivo do modelo é prever estoque, então target feature é a QUANTIDADE_ESTOQUE. As colunas utilizadas para a previsão foram PRECO e FLAG_PROMOCAO
+- O treinamento do modelo foi feito para a previsão de estoque de 1 dia após o dia mais recente presente no dataset. Ou seja, a data mais recente é 08/02/2024, então a previsão será para o dia 09/02/2024.
 
-## 🚀 Passo a Passo
+### 3. Análise
 
-### 1. Selecionar Dataset
+- Após o treinamento, o Canvas mostrou que a variável PRECO tem 9,61% de impacto sobre o estoque, enquanto a FLAG_PROMOCAO apresentou 0%. Ou seja, o estado de estar em promoção não altera de forma significativa o estoque para este grupo de produtos. Ao mesmo tmepo, o preço também não possui grande impacto.
+- Sobre as métricas, temos a Average Weighted Quantile Loss de 0,06. Esta métrica avalia a predição pela média da acurácia em quartis específicos, onde quanto menor o seu valor, maior a acurácia do modelo. A Mean Absolute Percent Error (MAPE) é de 0,148. Esta métrica se refere à porcentagem da média do erro em todos os pontos, onde quanto mais próximo de 0, menos erros. A Weighted Absolute Percent Error é de 0,100, onde ela avalia o desvio geral entre os valores preditos e os observados e quanto mais próximo de 0, menos erros. A Root Mean Square Error foi de 5,765, onde quanto mais próximo de 0, menos erros. Por fim a Mean Absolute Scaled Error foi de 0,301, em que ela representa a média do erro absoluto normalizado, sendo que MASE < 1 apresenta um modelo melhor que o a tendência e MASE > 1 apresenta um modelo pior que o tendência.
 
--   Navegue até a pasta `datasets` deste repositório. Esta pasta contém os datasets que você poderá escolher para treinar e testar seu modelo de ML. Sinta-se à vontade para gerar/enriquecer seus próprios datasets, quanto mais você se engajar, mais relevante esse projeto será em seu portfólio.
--   Escolha o dataset que você usará para treinar seu modelo de previsão de estoque.
--   Faça o upload do dataset no SageMaker Canvas.
+### 4. Resultados
 
-### 2. Construir/Treinar
-
--   No SageMaker Canvas, importe o dataset que você selecionou.
--   Configure as variáveis de entrada e saída de acordo com os dados.
--   Inicie o treinamento do modelo. Isso pode levar algum tempo, dependendo do tamanho do dataset.
-
-### 3. Analisar
-
--   Após o treinamento, examine as métricas de performance do modelo.
--   Verifique as principais características que influenciam as previsões.
--   Faça ajustes no modelo se necessário e re-treine até obter um desempenho satisfatório.
-
-### 4. Prever
-
--   Use o modelo treinado para fazer previsões de estoque.
--   Exporte os resultados e analise as previsões geradas.
--   Documente suas conclusões e qualquer insight obtido a partir das previsões.
-
-## 🤔 Dúvidas?
-
-Esperamos que esta experiência tenha sido enriquecedora e que você tenha aprendido mais sobre Machine Learning aplicado a problemas reais. Se tiver alguma dúvida, não hesite em abrir uma issue neste repositório ou entrar em contato com a equipe da DIO.
+- De forma geral, foi possível observar que a maioria dos produtos observados ficaram com a sua linha de tendência (LD) quase equidistante entre a reta de cenário de descrescimento de estoque (CDE) e a de cenário de crescimento de estoque (CCE). A exemplo, temos o Produto 1000 com Demanda inicial (DI) = 24,  LD = 15, CDE 10 e CCE = 21. 
+- Poucos casos é como a do Produto 1012, onde a DI = 84, LD = 70, CDE = 66 e CCE = 80, onde a linha de tendência e a de decrescimento do estoque se aproximam. Neste caso, podemos observar que se trata de um produto com maior demanda, o que é um ponto de alerta de atenção para manutenção do estoque da loja.  
